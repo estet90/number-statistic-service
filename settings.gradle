@@ -1,0 +1,5 @@
+rootProject.name = 'number-statistic-service'
+include 'api'
+include 'storage-api'
+include 'in-memory-storage'
+

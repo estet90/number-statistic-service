@@ -18,6 +18,7 @@ public class PropertyResolver {
             properties.load(requireNonNull(inputStream));
         } catch (IOException | NullPointerException e) {
             logger.log(Level.WARNING, "PropertyResolver.init.thrown ", e);
+            throw new RuntimeException(e);
         }
     }
 

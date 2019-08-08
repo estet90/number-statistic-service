@@ -2,6 +2,9 @@ package ru.kononov.numberstatisticservice.api.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import ru.kononov.numberstatisticservice.api.builder.FaultBuilder;
 import ru.kononov.numberstatisticservice.api.builder.ResponseBuilder;
 import ru.kononov.numberstatisticservice.api.util.HandlerWrapper;
@@ -11,11 +14,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 
 public class AddNumberHandler implements HttpHandler {
 
-    private static final Logger logger = Logger.getLogger(AddNumberHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(AddNumberHandler.class);
 
     private final NumberStorage numberStorage;
     private final ResponseBuilder responseBuilder;
@@ -29,10 +31,12 @@ public class AddNumberHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) {
+        ThreadContext.put("operationName", "addNumber");
         HandlerWrapper.wrap(logger, "AddNumberHandler.handle", exchange, httpExchange -> {
             var method = httpExchange.getRequestMethod();
             if ("POST".equals(method)) {
                 var payload = extractPayload(httpExchange);
+                logger.info("AddNumberHandler.handle payload={}", payload);
                 try {
                     var numberToAdd = new BigDecimal(payload);
                     numberStorage.add(numberToAdd);

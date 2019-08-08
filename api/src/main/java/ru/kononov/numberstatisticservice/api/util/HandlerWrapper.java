@@ -1,12 +1,14 @@
 package ru.kononov.numberstatisticservice.api.util;
 
 import com.sun.net.httpserver.HttpExchange;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class HandlerWrapper {
 
@@ -19,15 +21,18 @@ public class HandlerWrapper {
                             Function<HttpExchange, String> handler,
                             Function<String, String> errorResponseBuilder) {
         try {
+            ThreadContext.put("traceId", UUID.randomUUID().toString());
             logger.info(createLogInString(point, exchange));
             var result = handler.apply(exchange);
             logger.info(createLogOutSuccessString(point, exchange, result));
         } catch (UnsupportedOperationException | IllegalArgumentException e) {
             var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, 400);
-            logger.log(Level.WARNING, createLogOutErrorString(point, exchange, result), e);
+            logger.error(createLogOutErrorString(point, exchange, result), e);
         } catch (Exception e) {
             var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, 500);
-            logger.log(Level.WARNING, createLogOutErrorString(point, exchange, result), e);
+            logger.error(createLogOutErrorString(point, exchange, result), e);
+        } finally {
+            ThreadContext.clearAll();
         }
     }
 
@@ -38,14 +43,15 @@ public class HandlerWrapper {
                                        int status) {
         try {
             var response = responseBuilder.get();
-            exchange.sendResponseHeaders(status, response.length());
+            exchange.getResponseHeaders().add("Content-type", "text/plain");
+            exchange.sendResponseHeaders(status, response.getBytes(StandardCharsets.UTF_8).length);
             try (var outputStream = exchange.getResponseBody()) {
                 outputStream.write(response.getBytes());
             }
             return response;
         } catch (IOException io) {
-            logger.log(Level.WARNING, point + ".thrown", io);
-            return null;
+            logger.error(point + ".thrown", io);
+            throw new RuntimeException(io);
         }
     }
 

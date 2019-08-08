@@ -1,15 +1,14 @@
 package ru.kononov.numberstatisticservice.api.builder;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.HashMap;
 
 public class FaultBuilder {
 
     public String build(String result) {
-        return Map.of(
-                "status", "failure",
-                "result", Objects.requireNonNull(result)
-        ).toString();
+        var map = new HashMap<>();
+        map.put("status", "failure");
+        map.put("result", result);
+        return map.toString();
     }
 
 }

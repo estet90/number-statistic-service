@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 
 public class AddNumberHandler implements HttpHandler {
 
-    private static final Logger logger = LogManager.getLogger(AddNumberHandler.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final NumberStorage numberStorage;
     private final ResponseBuilder responseBuilder;

@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpExchange;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.Function;
@@ -49,9 +48,9 @@ public class HandlerWrapper {
                 outputStream.write(response.getBytes());
             }
             return response;
-        } catch (IOException io) {
-            logger.error(point + ".thrown", io);
-            throw new RuntimeException(io);
+        } catch (Exception exception) {
+            logger.error(point + ".thrown", exception);
+            throw new RuntimeException("Ошибка при отправке ответа", exception);
         }
     }
 

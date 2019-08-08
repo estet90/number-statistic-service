@@ -1,6 +1,8 @@
 package ru.kononov.numberstatisticservice.api;
 
 import com.sun.net.httpserver.HttpServer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.kononov.numberstatisticservice.api.handler.AddNumberHandler;
 import ru.kononov.numberstatisticservice.api.handler.AverageNumberHandler;
 import ru.kononov.numberstatisticservice.api.handler.MaxNumberHandler;
@@ -10,8 +12,12 @@ import ru.kononov.numberstatisticservice.storageapi.logic.NumberStorage;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 class Server {
+
+    private static final Logger logger = LogManager.getLogger(Server.class);
 
     private final AddNumberHandler addNumberHandler;
     private final AverageNumberHandler averageNumberHandler;
@@ -28,6 +34,7 @@ class Server {
     }
 
     void start() throws IOException {
+        var start = LocalDateTime.now();
         var inetSocketAddress = new InetSocketAddress(propertyResolver.getPort());
         var server = HttpServer.create(inetSocketAddress, 0);
         var contextPath = propertyResolver.getContextPath();
@@ -37,6 +44,7 @@ class Server {
         server.createContext(contextPath + "/numbers/min", minNumberHandler);
         server.setExecutor(null);
         server.start();
+        logger.info("Server started at {} millis", start.until(LocalDateTime.now(), ChronoUnit.MILLIS));
     }
 
 }

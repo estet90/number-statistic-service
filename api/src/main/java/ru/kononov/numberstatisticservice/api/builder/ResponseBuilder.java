@@ -1,15 +1,14 @@
 package ru.kononov.numberstatisticservice.api.builder;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.HashMap;
 
 public class ResponseBuilder {
 
     public String build(String result) {
-        return Map.of(
-                "status", "success",
-                "result", Objects.requireNonNull(result)
-        ).toString();
+        var map = new HashMap<>();
+        map.put("status", "success");
+        map.put("result", result);
+        return map.toString();
     }
 
 }

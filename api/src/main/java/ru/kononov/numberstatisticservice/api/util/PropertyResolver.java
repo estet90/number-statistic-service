@@ -10,7 +10,7 @@ import static java.util.Objects.requireNonNull;
 
 public class PropertyResolver {
 
-    private static final Logger logger = LogManager.getLogger(PropertyResolver.class);
+    private static final Logger logger = LogManager.getLogger();
     private final Properties properties;
 
     public PropertyResolver() {

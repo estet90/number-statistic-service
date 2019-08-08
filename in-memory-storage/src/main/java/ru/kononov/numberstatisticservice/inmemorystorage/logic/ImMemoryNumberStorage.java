@@ -4,15 +4,17 @@ import ru.kononov.numberstatisticservice.storageapi.logic.NumberStorage;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Objects.isNull;
 
 public class ImMemoryNumberStorage implements NumberStorage {
 
-    private static CopyOnWriteArrayList<BigDecimal> numbers = new CopyOnWriteArrayList<>();
-    private static volatile BigDecimal min = null;
-    private static volatile BigDecimal max = null;
+    private static List<BigDecimal> numbers = Collections.synchronizedList(new ArrayList<>());
+    private volatile BigDecimal min = null;
+    private volatile BigDecimal max = null;
 
     @Override
     public void add(BigDecimal number) {

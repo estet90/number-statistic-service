@@ -6,11 +6,12 @@ import org.apache.logging.log4j.ThreadContext;
 import ru.kononov.numberstatisticservice.api.dto.Operation;
 
 import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
+
+import static ru.kononov.numberstatisticservice.api.util.ResponseWriter.writeErrorResponse;
 
 public class HandlerWrapper {
 
@@ -24,9 +25,7 @@ public class HandlerWrapper {
                             Function<HttpExchange, String> handler,
                             Function<String, String> errorResponseBuilder) {
         try {
-            Objects.requireNonNull(operation);
-            ThreadContext.put("traceId", UUID.randomUUID().toString());
-            ThreadContext.put("operationName", operation.name());
+            threadContextInit(operation);
             logger.info(createLogInString(point, exchange));
             var result = handler.apply(exchange);
             logger.info(createLogOutSuccessString(point, exchange, result));
@@ -41,32 +40,32 @@ public class HandlerWrapper {
         }
     }
 
-    public static String writeResponse(Logger logger,
-                                       String point,
-                                       HttpExchange exchange,
-                                       Supplier<String> responseBuilder,
-                                       int status) {
+    public static void wrap(Logger logger,
+                            String point,
+                            Operation operation,
+                            HttpExchange exchange,
+                            Consumer<HttpExchange> handler,
+                            Function<String, String> errorResponseBuilder) {
         try {
-            var response = responseBuilder.get();
-            exchange.getResponseHeaders().add("Content-type", "text/plain");
-            exchange.sendResponseHeaders(status, response.getBytes(StandardCharsets.UTF_8).length);
-            try (var outputStream = exchange.getResponseBody()) {
-                outputStream.write(response.getBytes());
-            }
-            return response;
-        } catch (Exception exception) {
-            logger.error(point + ".thrown", exception);
-            throw new RuntimeException("Ошибка при отправке ответа", exception);
+            threadContextInit(operation);
+            logger.info(createLogInString(point, exchange));
+            handler.accept(exchange);
+            logger.info(createLogOutSuccessString(point, exchange, null));
+        } catch (UnsupportedOperationException | IllegalArgumentException e) {
+            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, HttpURLConnection.HTTP_BAD_REQUEST);
+            logger.error(createLogOutErrorString(point, exchange, result), e);
+        } catch (Exception e) {
+            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, HttpURLConnection.HTTP_INTERNAL_ERROR);
+            logger.error(createLogOutErrorString(point, exchange, result), e);
+        } finally {
+            ThreadContext.clearAll();
         }
     }
 
-    private static String writeErrorResponse(Logger logger,
-                                             String point,
-                                             HttpExchange exchange,
-                                             Function<String, String> errorResponseBuilder,
-                                             Exception e,
-                                             int status) {
-        return writeResponse(logger, point, exchange, () -> errorResponseBuilder.apply(e.getMessage()), status);
+    private static void threadContextInit(Operation operation) {
+        Objects.requireNonNull(operation);
+        ThreadContext.put("traceId", UUID.randomUUID().toString());
+        ThreadContext.put("operationName", operation.name());
     }
 
     private static String createLogInString(String point, HttpExchange exchange) {

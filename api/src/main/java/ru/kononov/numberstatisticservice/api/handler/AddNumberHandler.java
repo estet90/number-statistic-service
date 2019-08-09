@@ -5,34 +5,34 @@ import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.kononov.numberstatisticservice.api.builder.FaultBuilder;
-import ru.kononov.numberstatisticservice.api.builder.ResponseBuilder;
-import ru.kononov.numberstatisticservice.api.util.HandlerWrapper;
 import ru.kononov.numberstatisticservice.storageapi.logic.NumberStorage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 
+import static java.util.Objects.requireNonNull;
 import static ru.kononov.numberstatisticservice.api.dto.Operation.addNumber;
+import static ru.kononov.numberstatisticservice.api.util.HandlerWrapper.wrap;
+import static ru.kononov.numberstatisticservice.api.util.ResponseWriter.writeResponse;
 
 public class AddNumberHandler implements HttpHandler {
 
     private static final Logger logger = LogManager.getLogger();
 
     private final NumberStorage numberStorage;
-    private final ResponseBuilder responseBuilder;
     private final FaultBuilder faultBuilder;
 
     public AddNumberHandler(NumberStorage numberStorage) {
         this.numberStorage = numberStorage;
-        this.responseBuilder = new ResponseBuilder();
         this.faultBuilder = new FaultBuilder();
     }
 
     @Override
     public void handle(HttpExchange exchange) {
-        HandlerWrapper.wrap(logger, "AddNumberHandler.handle", addNumber, exchange, httpExchange -> {
+        wrap(logger, "AddNumberHandler.handle", addNumber, exchange, httpExchange -> {
             var method = httpExchange.getRequestMethod();
             if ("POST".equals(method)) {
                 var payload = extractPayload(httpExchange);
@@ -43,11 +43,7 @@ public class AddNumberHandler implements HttpHandler {
                 } catch (NumberFormatException e) {
                     throw new IllegalArgumentException("Невозможно преобразовать в число переданное значение " + payload, e);
                 }
-                return HandlerWrapper.writeResponse(
-                        logger, "AddNumberHandler.handle", httpExchange,
-                        () -> responseBuilder.build("Добавлено число " + payload),
-                        200
-                );
+                writeResponse(logger, "AddNumberHandler.handle", httpExchange, HttpURLConnection.HTTP_ACCEPTED);
             } else {
                 throw new UnsupportedOperationException(String.format("Метод %s не поддерживается", method));
             }
@@ -56,7 +52,7 @@ public class AddNumberHandler implements HttpHandler {
     }
 
     private String extractPayload(HttpExchange exchange) {
-        try (var inputStream = exchange.getRequestBody()) {
+        try (var inputStream = requireNonNull(exchange.getRequestBody())) {
             var result = new ByteArrayOutputStream();
             var buffer = new byte[1024];
             int length;
@@ -64,8 +60,8 @@ public class AddNumberHandler implements HttpHandler {
                 result.write(buffer, 0, length);
             }
             return result.toString(StandardCharsets.UTF_8.name());
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+        } catch (IOException | NullPointerException e) {
+            throw new IllegalArgumentException("Не удалось извлечь тело запроса", e);
         }
     }
 

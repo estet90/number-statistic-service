@@ -20,6 +20,7 @@ dependencies {
 
     testImplementation(
             "org.junit.jupiter:junit-jupiter:$jupiterVersion",
-            "org.assertj:assertj-core:$assertjVersion"
+            "org.assertj:assertj-core:$assertjVersion",
+            "org.mockito:mockito-core:3.0.0"
     )
 }

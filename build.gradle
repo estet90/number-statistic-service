@@ -1,6 +1,11 @@
 group "ru.kononov"
 version "1.0.0"
 
+ext {
+    jupiterVersion = "5.5.1"
+    assertjVersion = "3.13.2"
+}
+
 subprojects {
     repositories {
         mavenCentral()

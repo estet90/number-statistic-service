@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Executors;
 
 class Server {
 
@@ -37,14 +38,23 @@ class Server {
         var start = LocalDateTime.now();
         var inetSocketAddress = new InetSocketAddress(propertyResolver.getPort());
         var server = HttpServer.create(inetSocketAddress, 0);
+        var executor = Executors.newCachedThreadPool();
+        server.setExecutor(executor);
+        addHandlers(server);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Server is shutting down...");
+            server.stop(0);
+        }));
+        server.start();
+        logger.info("Server started at {} millis", start.until(LocalDateTime.now(), ChronoUnit.MILLIS));
+    }
+
+    private void addHandlers(HttpServer server) {
         var contextPath = propertyResolver.getContextPath();
         server.createContext(contextPath + "/numbers", addNumberHandler);
         server.createContext(contextPath + "/numbers/average", averageNumberHandler);
         server.createContext(contextPath + "/numbers/max", maxNumberHandler);
         server.createContext(contextPath + "/numbers/min", minNumberHandler);
-        server.setExecutor(null);
-        server.start();
-        logger.info("Server started at {} millis", start.until(LocalDateTime.now(), ChronoUnit.MILLIS));
     }
 
 }

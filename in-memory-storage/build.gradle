@@ -9,4 +9,9 @@ sourceCompatibility = 11
 
 dependencies {
     implementation project(":storage-api")
+
+    testImplementation(
+            "org.junit.jupiter:junit-jupiter:$jupiterVersion",
+            "org.assertj:assertj-core:$assertjVersion"
+    )
 }

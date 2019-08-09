@@ -3,8 +3,11 @@ package ru.kononov.numberstatisticservice.api.util;
 import com.sun.net.httpserver.HttpExchange;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
+import ru.kononov.numberstatisticservice.api.dto.Operation;
 
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,19 +19,22 @@ public class HandlerWrapper {
 
     public static void wrap(Logger logger,
                             String point,
+                            Operation operation,
                             HttpExchange exchange,
                             Function<HttpExchange, String> handler,
                             Function<String, String> errorResponseBuilder) {
         try {
+            Objects.requireNonNull(operation);
             ThreadContext.put("traceId", UUID.randomUUID().toString());
+            ThreadContext.put("operationName", operation.name());
             logger.info(createLogInString(point, exchange));
             var result = handler.apply(exchange);
             logger.info(createLogOutSuccessString(point, exchange, result));
         } catch (UnsupportedOperationException | IllegalArgumentException e) {
-            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, 400);
+            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, HttpURLConnection.HTTP_BAD_REQUEST);
             logger.error(createLogOutErrorString(point, exchange, result), e);
         } catch (Exception e) {
-            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, 500);
+            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, HttpURLConnection.HTTP_INTERNAL_ERROR);
             logger.error(createLogOutErrorString(point, exchange, result), e);
         } finally {
             ThreadContext.clearAll();

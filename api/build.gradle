@@ -19,6 +19,7 @@ dependencies {
     )
 
     testImplementation(
-            "org.junit.jupiter:junit-jupiter:5.5.1"
+            "org.junit.jupiter:junit-jupiter:$jupiterVersion",
+            "org.assertj:assertj-core:$assertjVersion"
     )
 }

@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
 import ru.kononov.numberstatisticservice.api.builder.FaultBuilder;
 import ru.kononov.numberstatisticservice.api.builder.ResponseBuilder;
 import ru.kononov.numberstatisticservice.api.util.HandlerWrapper;
@@ -14,6 +13,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+
+import static ru.kononov.numberstatisticservice.api.dto.Operation.addNumber;
 
 public class AddNumberHandler implements HttpHandler {
 
@@ -31,8 +32,7 @@ public class AddNumberHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) {
-        ThreadContext.put("operationName", "addNumber");
-        HandlerWrapper.wrap(logger, "AddNumberHandler.handle", exchange, httpExchange -> {
+        HandlerWrapper.wrap(logger, "AddNumberHandler.handle", addNumber, exchange, httpExchange -> {
             var method = httpExchange.getRequestMethod();
             if ("POST".equals(method)) {
                 var payload = extractPayload(httpExchange);

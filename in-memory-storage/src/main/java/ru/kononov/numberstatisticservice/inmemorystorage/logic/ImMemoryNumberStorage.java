@@ -7,17 +7,21 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 import static java.util.Objects.isNull;
 
 public class ImMemoryNumberStorage implements NumberStorage {
 
-    private static List<BigDecimal> numbers = Collections.synchronizedList(new ArrayList<>());
-    private volatile BigDecimal min = null;
-    private volatile BigDecimal max = null;
+    List<BigDecimal> numbers = Collections.synchronizedList(new ArrayList<>());
+    volatile BigDecimal min = null;
+    volatile BigDecimal max = null;
+    volatile BigDecimal sum = null;
 
     @Override
-    public void add(BigDecimal number) {
+    public synchronized void add(BigDecimal number) {
+        Objects.requireNonNull(number);
         numbers.add(number);
         if (isNull(min) || number.compareTo(min) < 0) {
             min = number;
@@ -25,30 +29,28 @@ public class ImMemoryNumberStorage implements NumberStorage {
         if (isNull(max) || number.compareTo(max) > 0) {
             max = number;
         }
+        sum = isNull(sum) ? number : sum.add(number);
     }
 
     @Override
     public BigDecimal min() {
-        if (numbers.size() == 0) {
-            return null;
-        }
-        return min;
+        return getResultWithCheck(() -> min);
     }
 
     @Override
     public BigDecimal max() {
-        if (numbers.size() == 0) {
-            return null;
-        }
-        return max;
+        return getResultWithCheck(() -> max);
     }
 
     @Override
     public BigDecimal average() {
+        return getResultWithCheck(() -> sum.divide(BigDecimal.valueOf(numbers.size()), MathContext.DECIMAL32));
+    }
+
+    private BigDecimal getResultWithCheck(Supplier<BigDecimal> resultSupplier) {
         if (numbers.size() == 0) {
             return null;
         }
-        var sum = numbers.stream().reduce(BigDecimal::add).get();
-        return sum.divide(BigDecimal.valueOf(numbers.size()), MathContext.DECIMAL32);
+        return resultSupplier.get();
     }
 }

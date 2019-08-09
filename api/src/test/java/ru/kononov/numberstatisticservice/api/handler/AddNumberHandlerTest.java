@@ -104,4 +104,5 @@ class AddNumberHandlerTest {
         verify(exchange).getResponseBody();
         verify(storage).add(eq(new BigDecimal("1")));
     }
+
 }

@@ -1,7 +1,3 @@
-plugins {
-    id "java"
-}
-
 group "ru.kononov"
 version "1.0.0"
 

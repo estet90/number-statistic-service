@@ -30,6 +30,19 @@ class MinNumberHandlerTest {
     }
 
     @Test
+    void handleReturnNull() throws IOException {
+        var storage = mock(ImMemoryNumberStorage.class);
+        when(storage.min()).thenReturn(null);
+        var handler = new MinNumberHandler(storage);
+        var exchange = mock(HttpExchange.class);
+        mockExchange(exchange, "GET");
+
+        handler.handle(exchange);
+
+        verifyResult(exchange, HttpURLConnection.HTTP_NO_CONTENT);
+    }
+
+    @Test
     void handleUnsupportedMethod() throws IOException {
         var handler = new MinNumberHandler(new ImMemoryNumberStorage());
         var exchange = mock(HttpExchange.class);

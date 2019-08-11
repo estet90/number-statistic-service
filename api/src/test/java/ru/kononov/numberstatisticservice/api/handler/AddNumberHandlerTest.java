@@ -22,6 +22,7 @@ class AddNumberHandlerTest {
         var exchange = mock(HttpExchange.class);
         when(exchange.getRequestMethod()).thenReturn("POST");
         when(exchange.getRequestBody()).thenReturn(new ByteArrayInputStream("1".getBytes()));
+        when(exchange.getResponseBody()).thenReturn(new ByteArrayOutputStream(0));
         when(exchange.getResponseHeaders()).thenReturn(new Headers());
 
         handler.handle(exchange);
@@ -29,16 +30,16 @@ class AddNumberHandlerTest {
         verify(exchange, times(2)).getRequestMethod();
         verify(exchange).getRequestBody();
         verify(exchange, times(2)).getResponseHeaders();
-        verify(exchange).sendResponseHeaders(eq(HttpURLConnection.HTTP_ACCEPTED), eq(0L));
-        verify(exchange, never()).getResponseBody();
+        verify(exchange).sendResponseHeaders(eq(HttpURLConnection.HTTP_ACCEPTED), eq(-1L));
+        verify(exchange).getResponseBody();
     }
 
     @Test
     void handleUnsupportedMethod() throws IOException {
         var exchange = mock(HttpExchange.class);
         when(exchange.getRequestMethod()).thenReturn("GET");
-        when(exchange.getResponseBody()).thenReturn(new ByteArrayOutputStream(0));
         when(exchange.getRequestBody()).thenReturn(new ByteArrayInputStream("1".getBytes()));
+        when(exchange.getResponseBody()).thenReturn(new ByteArrayOutputStream(0));
         when(exchange.getResponseHeaders()).thenReturn(new Headers());
 
         handler.handle(exchange);

@@ -25,7 +25,7 @@ class ImMemoryNumberStorageTest {
 
         assertDoesNotThrow(() -> numbers.forEach(storage::add));
 
-        assertThat(storage.numbers).size().isEqualTo(4);
+        assertThat(storage.getCount()).isEqualTo(4);
     }
 
     @Test
@@ -40,7 +40,7 @@ class ImMemoryNumberStorageTest {
         var storage = new ImMemoryNumberStorage();
 
         assertDoesNotThrow(() -> numbers.forEach(storage::add));
-        var min = storage.min;
+        var min = storage.min();
 
         assertThat(min).isEqualTo(BigDecimal.valueOf(1));
     }
@@ -50,7 +50,7 @@ class ImMemoryNumberStorageTest {
         var storage = new ImMemoryNumberStorage();
 
         assertDoesNotThrow(() -> numbers.forEach(storage::add));
-        var max = storage.max;
+        var max = storage.max();
 
         assertThat(max).isEqualTo(BigDecimal.valueOf(4));
     }
@@ -60,7 +60,7 @@ class ImMemoryNumberStorageTest {
         var storage = new ImMemoryNumberStorage();
 
         assertDoesNotThrow(() -> numbers.forEach(storage::add));
-        var average = storage.sum.divide(BigDecimal.valueOf(numbers.size()), MathContext.DECIMAL32);
+        var average = storage.getSum().divide(BigDecimal.valueOf(numbers.size()), MathContext.DECIMAL32);
 
         assertThat(average).isEqualTo(new BigDecimal("2.5"));
     }

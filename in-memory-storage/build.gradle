@@ -1,17 +1,8 @@
-plugins {
-    id "java"
-}
-
 group "ru.kononov"
 version "1.0.0"
 
 sourceCompatibility = 11
 
 dependencies {
-    implementation project(":storage-api")
-
-    testImplementation(
-            "org.junit.jupiter:junit-jupiter:$jupiterVersion",
-            "org.assertj:assertj-core:$assertjVersion"
-    )
+    compile project(":storage-api")
 }

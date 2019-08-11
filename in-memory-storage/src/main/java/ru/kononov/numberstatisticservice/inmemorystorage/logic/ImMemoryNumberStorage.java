@@ -1,12 +1,11 @@
 package ru.kononov.numberstatisticservice.inmemorystorage.logic;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.kononov.numberstatisticservice.storageapi.logic.NumberStorage;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -14,15 +13,16 @@ import static java.util.Objects.isNull;
 
 public class ImMemoryNumberStorage implements NumberStorage {
 
-    List<BigDecimal> numbers = Collections.synchronizedList(new ArrayList<>());
-    volatile BigDecimal min = null;
-    volatile BigDecimal max = null;
-    volatile BigDecimal sum = null;
+    private static final Logger logger = LogManager.getLogger(ImMemoryNumberStorage.class);
+
+    private volatile BigDecimal min = null;
+    private volatile BigDecimal max = null;
+    private volatile long count = 0;
+    private volatile BigDecimal sum = null;
 
     @Override
     public synchronized void add(BigDecimal number) {
         Objects.requireNonNull(number);
-        numbers.add(number);
         if (isNull(min) || number.compareTo(min) < 0) {
             min = number;
         }
@@ -30,25 +30,41 @@ public class ImMemoryNumberStorage implements NumberStorage {
             max = number;
         }
         sum = isNull(sum) ? number : sum.add(number);
+        count++;
+        logger.debug("ImMemoryNumberStorage.add\n\tnumber={}\n\tsum={}\n\tcount={}", number, sum, count);
     }
 
     @Override
     public BigDecimal min() {
-        return getResultWithCheck(() -> min);
+        var result = getResultWithCheck(() -> min);
+        logger.debug("ImMemoryNumberStorage.min result={}", result);
+        return result;
     }
 
     @Override
     public BigDecimal max() {
-        return getResultWithCheck(() -> max);
+        var result = getResultWithCheck(() -> max);
+        logger.debug("ImMemoryNumberStorage.max result={}", result);
+        return result;
     }
 
     @Override
     public BigDecimal average() {
-        return getResultWithCheck(() -> sum.divide(BigDecimal.valueOf(numbers.size()), MathContext.DECIMAL32));
+        var result = getResultWithCheck(() -> sum.divide(BigDecimal.valueOf(count), MathContext.DECIMAL32));
+        logger.debug("ImMemoryNumberStorage.average result={}", result);
+        return result;
+    }
+
+    long getCount() {
+        return this.count;
+    }
+
+    BigDecimal getSum() {
+        return this.sum;
     }
 
     private BigDecimal getResultWithCheck(Supplier<BigDecimal> resultSupplier) {
-        if (numbers.size() == 0) {
+        if (count == 0) {
             return null;
         }
         return resultSupplier.get();

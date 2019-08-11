@@ -14,13 +14,13 @@ import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 
 import static java.util.Objects.requireNonNull;
-import static ru.kononov.numberstatisticservice.api.dto.Operation.addNumber;
+import static ru.kononov.numberstatisticservice.api.dto.Operation.add;
 import static ru.kononov.numberstatisticservice.api.util.HandlerWrapper.wrap;
 import static ru.kononov.numberstatisticservice.api.util.ResponseWriter.writeResponse;
 
 public class AddNumberHandler implements HttpHandler {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(AddNumberHandler.class);
 
     private final NumberStorage numberStorage;
     private final FaultBuilder faultBuilder;
@@ -32,7 +32,7 @@ public class AddNumberHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) {
-        wrap(logger, "AddNumberHandler.handle", addNumber, exchange, httpExchange -> {
+        wrap(logger, "AddNumberHandler.handle", add, exchange, httpExchange -> {
             var method = httpExchange.getRequestMethod();
             if ("POST".equals(method)) {
                 var payload = extractPayload(httpExchange);

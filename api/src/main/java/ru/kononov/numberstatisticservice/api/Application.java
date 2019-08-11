@@ -8,7 +8,7 @@ public class Application {
 
     public static void main(String[] args) throws IOException {
         var storage = new ImMemoryNumberStorage();
-        var server = new Server(storage);
+        var server = new Server(storage, "application.properties");
         server.start();
     }
 

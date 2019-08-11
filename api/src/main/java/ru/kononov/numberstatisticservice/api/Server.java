@@ -26,12 +26,12 @@ class Server {
     private final MinNumberHandler minNumberHandler;
     private final PropertyResolver propertyResolver;
 
-    Server(NumberStorage numberStorage) {
+    Server(NumberStorage numberStorage, String propertyFileName) {
         this.addNumberHandler = new AddNumberHandler(numberStorage);
         this.averageNumberHandler = new AverageNumberHandler(numberStorage);
         this.maxNumberHandler = new MaxNumberHandler(numberStorage);
         this.minNumberHandler = new MinNumberHandler(numberStorage);
-        this.propertyResolver = new PropertyResolver();
+        this.propertyResolver = new PropertyResolver(propertyFileName);
     }
 
     void start() throws IOException {

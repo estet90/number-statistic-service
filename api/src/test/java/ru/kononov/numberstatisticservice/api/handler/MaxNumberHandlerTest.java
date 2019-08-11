@@ -30,6 +30,19 @@ class MaxNumberHandlerTest {
     }
 
     @Test
+    void handleReturnNull() throws IOException {
+        var storage = mock(ImMemoryNumberStorage.class);
+        when(storage.max()).thenReturn(null);
+        var handler = new MaxNumberHandler(storage);
+        var exchange = mock(HttpExchange.class);
+        mockExchange(exchange, "GET");
+
+        handler.handle(exchange);
+
+        verifyResult(exchange, HttpURLConnection.HTTP_NO_CONTENT);
+    }
+
+    @Test
     void handleUnsupportedMethod() throws IOException {
         var handler = new MaxNumberHandler(new ImMemoryNumberStorage());
         var exchange = mock(HttpExchange.class);

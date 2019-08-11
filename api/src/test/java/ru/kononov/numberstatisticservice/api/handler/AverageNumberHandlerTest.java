@@ -30,6 +30,19 @@ class AverageNumberHandlerTest {
     }
 
     @Test
+    void handleReturnNull() throws IOException {
+        var storage = mock(ImMemoryNumberStorage.class);
+        when(storage.average()).thenReturn(null);
+        var handler = new AverageNumberHandler(storage);
+        var exchange = mock(HttpExchange.class);
+        mockExchange(exchange, "GET");
+
+        handler.handle(exchange);
+
+        verifyResult(exchange, HttpURLConnection.HTTP_NO_CONTENT);
+    }
+
+    @Test
     void handleUnsupportedMethod() throws IOException {
         var handler = new AverageNumberHandler(new ImMemoryNumberStorage());
         var exchange = mock(HttpExchange.class);

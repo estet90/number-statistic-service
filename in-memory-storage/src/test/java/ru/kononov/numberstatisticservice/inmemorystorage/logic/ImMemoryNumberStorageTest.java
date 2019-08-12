@@ -3,7 +3,6 @@ package ru.kononov.numberstatisticservice.inmemorystorage.logic;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +59,7 @@ class ImMemoryNumberStorageTest {
         var storage = new ImMemoryNumberStorage();
 
         assertDoesNotThrow(() -> numbers.forEach(storage::add));
-        var average = storage.getSum().divide(BigDecimal.valueOf(numbers.size()), MathContext.DECIMAL32);
+        var average = storage.average();
 
         assertThat(average).isEqualTo(new BigDecimal("2.5"));
     }

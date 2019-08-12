@@ -14,3 +14,4 @@ gradlew*
 gradle-wrapper*
 *.png
 *.uml
+.attach*

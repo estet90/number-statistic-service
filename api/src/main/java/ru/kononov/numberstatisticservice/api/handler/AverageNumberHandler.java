@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import static java.util.Optional.ofNullable;
 import static ru.kononov.numberstatisticservice.api.dto.Operation.average;
 import static ru.kononov.numberstatisticservice.api.util.HandlerWrapper.wrap;
+import static ru.kononov.numberstatisticservice.api.util.HttpMethodChecker.checkMethod;
 import static ru.kononov.numberstatisticservice.api.util.ResponseWriter.writeResponse;
 
 public class AverageNumberHandler implements HttpHandler {
@@ -30,17 +31,13 @@ public class AverageNumberHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
         wrap(logger, "AverageNumberHandler.handle", average, exchange, httpExchange -> {
-            var method = httpExchange.getRequestMethod();
-            if ("GET".equals(method)) {
-                var result = ofNullable(numberStorage.average()).map(BigDecimal::toString).orElse(null);
-                return writeResponse(
-                        logger, "AverageNumberHandler.handle", httpExchange,
-                        () -> result,
-                        HttpURLConnection.HTTP_OK
-                );
-            } else {
-                throw new UnsupportedOperationException(String.format("Метод %s не поддерживается", method));
-            }
+            checkMethod(httpExchange, "GET");
+            var result = ofNullable(numberStorage.average()).map(BigDecimal::toString).orElse(null);
+            return writeResponse(
+                    logger, "AverageNumberHandler.handle", httpExchange,
+                    () -> result,
+                    HttpURLConnection.HTTP_OK
+            );
         }, faultBuilder::build);
     }
 }

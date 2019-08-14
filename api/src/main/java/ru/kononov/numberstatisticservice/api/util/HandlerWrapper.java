@@ -24,6 +24,19 @@ public class HandlerWrapper {
                             String point,
                             Operation operation,
                             HttpExchange exchange,
+                            Consumer<HttpExchange> handler,
+                            Function<String, String> errorResponseBuilder) {
+        Function<HttpExchange, String> function = httExchange -> {
+            handler.accept(httExchange);
+            return null;
+        };
+        wrap(logger, point, operation, exchange, function, errorResponseBuilder);
+    }
+
+    public static void wrap(Logger logger,
+                            String point,
+                            Operation operation,
+                            HttpExchange exchange,
                             Function<HttpExchange, String> handler,
                             Function<String, String> errorResponseBuilder) {
         var start = LocalDateTime.now();
@@ -32,29 +45,6 @@ public class HandlerWrapper {
             logger.info(createLogInString(point, exchange));
             var result = handler.apply(exchange);
             logger.info(createLogOutSuccessString(point, start, exchange, result));
-        } catch (UnsupportedOperationException | IllegalArgumentException e) {
-            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, HttpURLConnection.HTTP_BAD_REQUEST);
-            logger.error(createLogOutErrorString(point, start, exchange, result), e);
-        } catch (Exception e) {
-            var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, HttpURLConnection.HTTP_INTERNAL_ERROR);
-            logger.error(createLogOutErrorString(point, start, exchange, result), e);
-        } finally {
-            ThreadContext.clearAll();
-        }
-    }
-
-    public static void wrap(Logger logger,
-                            String point,
-                            Operation operation,
-                            HttpExchange exchange,
-                            Consumer<HttpExchange> handler,
-                            Function<String, String> errorResponseBuilder) {
-        var start = LocalDateTime.now();
-        try {
-            threadContextInit(operation);
-            logger.info(createLogInString(point, exchange));
-            handler.accept(exchange);
-            logger.info(createLogOutSuccessString(point, start, exchange, null));
         } catch (UnsupportedOperationException | IllegalArgumentException e) {
             var result = writeErrorResponse(logger, point, exchange, errorResponseBuilder, e, HttpURLConnection.HTTP_BAD_REQUEST);
             logger.error(createLogOutErrorString(point, start, exchange, result), e);

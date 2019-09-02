@@ -8,7 +8,6 @@ import ru.kononov.numberstatisticservice.api.builder.FaultBuilder;
 import ru.kononov.numberstatisticservice.storageapi.logic.NumberStorage;
 
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
 
 import static java.util.Optional.ofNullable;
 import static ru.kononov.numberstatisticservice.api.util.HandlerWrapper.wrap;
@@ -36,8 +35,8 @@ public class MaxNumberHandler implements HttpHandler {
                     var result = ofNullable(numberStorage.max()).map(BigDecimal::toString).orElse(null);
                     writeOkResponse(logger, point, httpExchange, () -> result);
                 },
-                (httpExchange, e) -> writeClientErrorResponse(logger, point, httpExchange, e, ex -> faultBuilder.build(ex.getMessage())),
-                (httpExchange, e) -> writeServerErrorResponse(logger, point, httpExchange, e, ex -> faultBuilder.build(ex.getMessage()))
+                (httpExchange, e) -> writeClientErrorResponse(logger, point, httpExchange, e, faultBuilder::build),
+                (httpExchange, e) -> writeServerErrorResponse(logger, point, httpExchange, e, faultBuilder::build)
         );
     }
 }

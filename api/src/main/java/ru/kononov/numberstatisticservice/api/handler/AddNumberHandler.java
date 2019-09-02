@@ -47,8 +47,8 @@ public class AddNumberHandler implements HttpHandler {
                     }
                     writeResponse(logger, point, httpExchange, HttpURLConnection.HTTP_ACCEPTED);
                 },
-                (httpExchange, e) -> writeClientErrorResponse(logger, point, httpExchange, e, ex -> faultBuilder.build(ex.getMessage())),
-                (httpExchange, e) -> writeServerErrorResponse(logger, point, httpExchange, e, ex -> faultBuilder.build(ex.getMessage()))
+                (httpExchange, e) -> writeClientErrorResponse(logger, point, httpExchange, e, faultBuilder::build),
+                (httpExchange, e) -> writeServerErrorResponse(logger, point, httpExchange, e, faultBuilder::build)
         );
 
     }

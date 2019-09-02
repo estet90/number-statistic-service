@@ -57,7 +57,7 @@ public class LoggingFilter extends Filter {
     }
 
     private void logIn(HttpExchange exchange, String body) {
-        logger.info(
+        logger.debug(
                 "{}.request\n\tmethod={}\n\turi={}\n\theaders={}\n\tbody={}",
                 operation.name(),
                 exchange.getRequestMethod(),
@@ -68,7 +68,7 @@ public class LoggingFilter extends Filter {
     }
 
     private void logIn(HttpExchange exchange) {
-        logger.info(
+        logger.debug(
                 "{}.request\n\tmethod={}\n\turi={}\n\theaders={}",
                 operation.name(),
                 exchange.getRequestMethod(),
@@ -79,9 +79,9 @@ public class LoggingFilter extends Filter {
 
     private void logResponse(HttpExchange exchange) throws IOException {
         try (var bodyStream = exchange.getResponseBody()) {
-            if (bodyStream instanceof ByteArrayOutputStream) {
-                var payload = ((ByteArrayOutputStream) bodyStream).toString(StandardCharsets.UTF_8.name());
-                logOut(exchange, payload);
+            if (bodyStream instanceof ByteArrayOutputStream && ((ByteArrayOutputStream) bodyStream).size() > 0) {
+                var body = ((ByteArrayOutputStream) bodyStream).toString(StandardCharsets.UTF_8.name());
+                logOut(exchange, body);
             } else {
                 logOut(exchange);
             }
@@ -89,7 +89,7 @@ public class LoggingFilter extends Filter {
     }
 
     private void logOut(HttpExchange exchange, String body) {
-        logger.info(
+        logger.debug(
                 "{}.response\n\tstatus={}\n\theaders={}\n\tbody={}",
                 operation.name(),
                 exchange.getResponseCode(),
@@ -99,7 +99,7 @@ public class LoggingFilter extends Filter {
     }
 
     private void logOut(HttpExchange exchange) {
-        logger.info(
+        logger.debug(
                 "{}.response\n\tstatus={}\n\theaders={}",
                 operation.name(),
                 exchange.getResponseCode(),

@@ -11,10 +11,9 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 
 import static java.util.Optional.ofNullable;
-import static ru.kononov.numberstatisticservice.api.dto.Operation.max;
 import static ru.kononov.numberstatisticservice.api.util.HandlerWrapper.wrap;
 import static ru.kononov.numberstatisticservice.api.util.HttpMethodChecker.checkMethod;
-import static ru.kononov.numberstatisticservice.api.util.ResponseWriter.writeResponse;
+import static ru.kononov.numberstatisticservice.api.util.ResponseWriter.*;
 
 public class MaxNumberHandler implements HttpHandler {
 
@@ -30,14 +29,15 @@ public class MaxNumberHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) {
-        wrap(logger, "MaxNumberHandler.handle", max, exchange, httpExchange -> {
-            checkMethod(httpExchange, "GET");
-            var result = ofNullable(numberStorage.max()).map(BigDecimal::toString).orElse(null);
-            return writeResponse(
-                    logger, "MaxNumberHandler.handle", httpExchange,
-                    () -> result,
-                    HttpURLConnection.HTTP_OK
-            );
-        }, faultBuilder::build);
+        var point = "MaxNumberHandler.handle";
+        wrap(logger, point, exchange,
+                httpExchange -> {
+                    checkMethod(httpExchange, "GET");
+                    var result = ofNullable(numberStorage.max()).map(BigDecimal::toString).orElse(null);
+                    writeOkResponse(logger, point, httpExchange, () -> result);
+                },
+                (httpExchange, e) -> writeClientErrorResponse(logger, point, httpExchange, e, ex -> faultBuilder.build(ex.getMessage())),
+                (httpExchange, e) -> writeServerErrorResponse(logger, point, httpExchange, e, ex -> faultBuilder.build(ex.getMessage()))
+        );
     }
 }

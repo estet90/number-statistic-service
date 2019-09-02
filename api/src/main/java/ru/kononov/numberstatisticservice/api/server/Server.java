@@ -1,8 +1,11 @@
-package ru.kononov.numberstatisticservice.api;
+package ru.kononov.numberstatisticservice.api.server;
 
+import com.sun.net.httpserver.Filter;
+import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.kononov.numberstatisticservice.api.dto.Operation;
 import ru.kononov.numberstatisticservice.api.handler.AddNumberHandler;
 import ru.kononov.numberstatisticservice.api.handler.AverageNumberHandler;
 import ru.kononov.numberstatisticservice.api.handler.MaxNumberHandler;
@@ -16,7 +19,9 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 
-class Server {
+import static ru.kononov.numberstatisticservice.api.dto.Operation.*;
+
+public class Server {
 
     private static final Logger logger = LogManager.getLogger(Server.class);
 
@@ -26,7 +31,7 @@ class Server {
     private final MinNumberHandler minNumberHandler;
     private final PropertyResolver propertyResolver;
 
-    Server(NumberStorage numberStorage, String propertyFileName) {
+    public Server(NumberStorage numberStorage, String propertyFileName) {
         this.addNumberHandler = new AddNumberHandler(numberStorage);
         this.averageNumberHandler = new AverageNumberHandler(numberStorage);
         this.maxNumberHandler = new MaxNumberHandler(numberStorage);
@@ -34,7 +39,7 @@ class Server {
         this.propertyResolver = new PropertyResolver(propertyFileName);
     }
 
-    void start() throws IOException {
+    public void start() throws IOException {
         var start = LocalDateTime.now();
         var inetSocketAddress = new InetSocketAddress(propertyResolver.getPort());
         var server = HttpServer.create(inetSocketAddress, 0);
@@ -51,10 +56,19 @@ class Server {
 
     private void addHandlers(HttpServer server) {
         var contextPath = propertyResolver.getContextPath();
-        server.createContext(contextPath + "/numbers", addNumberHandler);
-        server.createContext(contextPath + "/numbers/average", averageNumberHandler);
-        server.createContext(contextPath + "/numbers/max", maxNumberHandler);
-        server.createContext(contextPath + "/numbers/min", minNumberHandler);
+        createContextWithFilter(server, contextPath + "/numbers", addNumberHandler, add);
+        createContextWithFilter(server, contextPath + "/numbers/average", averageNumberHandler, average);
+        createContextWithFilter(server, contextPath + "/numbers/max", maxNumberHandler, max);
+        createContextWithFilter(server, contextPath + "/numbers/min", minNumberHandler, min);
+    }
+
+    private void createContextWithFilter(HttpServer server, String path, HttpHandler handler, Operation operation) {
+        var context = server.createContext(path, handler);
+        context.getFilters().add(createLoggingFilter(operation));
+    }
+
+    private Filter createLoggingFilter(Operation operation) {
+        return new LoggingFilter(operation);
     }
 
 }

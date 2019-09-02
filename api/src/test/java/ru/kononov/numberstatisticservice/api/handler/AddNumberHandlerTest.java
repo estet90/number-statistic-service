@@ -27,9 +27,9 @@ class AddNumberHandlerTest {
 
         handler.handle(exchange);
 
-        verify(exchange, times(2)).getRequestMethod();
+        verify(exchange).getRequestMethod();
         verify(exchange).getRequestBody();
-        verify(exchange, times(2)).getResponseHeaders();
+        verify(exchange).getResponseHeaders();
         verify(exchange).sendResponseHeaders(eq(HttpURLConnection.HTTP_ACCEPTED), eq(-1L));
         verify(exchange).getResponseBody();
     }
@@ -44,9 +44,9 @@ class AddNumberHandlerTest {
 
         handler.handle(exchange);
 
-        verify(exchange, times(2)).getRequestMethod();
-        verify(exchange, never()).getRequestBody();
-        verify(exchange, times(2)).getResponseHeaders();
+        verify(exchange).getRequestMethod();
+        verify(exchange).getRequestBody();
+        verify(exchange).getResponseHeaders();
         verify(exchange).sendResponseHeaders(eq(HttpURLConnection.HTTP_BAD_REQUEST), any(long.class));
         verify(exchange).getResponseBody();
     }
@@ -61,9 +61,9 @@ class AddNumberHandlerTest {
 
         handler.handle(exchange);
 
-        verify(exchange, times(2)).getRequestMethod();
-        verify(exchange).getRequestBody();
-        verify(exchange, times(2)).getResponseHeaders();
+        verify(exchange).getRequestMethod();
+        verify(exchange, times(2)).getRequestBody();
+        verify(exchange).getResponseHeaders();
         verify(exchange).sendResponseHeaders(eq(HttpURLConnection.HTTP_BAD_REQUEST), any(long.class));
         verify(exchange).getResponseBody();
     }
@@ -78,9 +78,9 @@ class AddNumberHandlerTest {
 
         handler.handle(exchange);
 
-        verify(exchange, times(2)).getRequestMethod();
-        verify(exchange).getRequestBody();
-        verify(exchange, times(2)).getResponseHeaders();
+        verify(exchange).getRequestMethod();
+        verify(exchange, times(2)).getRequestBody();
+        verify(exchange).getResponseHeaders();
         verify(exchange).sendResponseHeaders(eq(HttpURLConnection.HTTP_BAD_REQUEST), any(long.class));
         verify(exchange).getResponseBody();
     }
@@ -98,9 +98,9 @@ class AddNumberHandlerTest {
 
         handler.handle(exchange);
 
-        verify(exchange, times(2)).getRequestMethod();
-        verify(exchange).getRequestBody();
-        verify(exchange, times(2)).getResponseHeaders();
+        verify(exchange).getRequestMethod();
+        verify(exchange, times(2)).getRequestBody();
+        verify(exchange).getResponseHeaders();
         verify(exchange).sendResponseHeaders(eq(HttpURLConnection.HTTP_INTERNAL_ERROR), any(long.class));
         verify(exchange).getResponseBody();
         verify(storage).add(eq(new BigDecimal("1")));

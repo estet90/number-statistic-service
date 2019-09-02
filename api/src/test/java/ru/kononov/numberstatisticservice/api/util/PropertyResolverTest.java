@@ -2,9 +2,6 @@ package ru.kononov.numberstatisticservice.api.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Function;
-import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

@@ -73,8 +73,8 @@ class AverageNumberHandlerTest {
     }
 
     private void verifyResult(HttpExchange exchange, int status) throws IOException {
-        verify(exchange, times(2)).getRequestMethod();
-        verify(exchange, times(2)).getResponseHeaders();
+        verify(exchange).getRequestMethod();
+        verify(exchange).getResponseHeaders();
         verify(exchange).sendResponseHeaders(eq(status), any(long.class));
         verify(exchange).getResponseBody();
     }

@@ -1,6 +1,5 @@
 package ru.kononov.numberstatisticservice.api.server;
 
-import com.sun.net.httpserver.Filter;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.logging.log4j.LogManager;
@@ -64,11 +63,7 @@ public class Server {
 
     private void createContextWithFilter(HttpServer server, String path, HttpHandler handler, Operation operation) {
         var context = server.createContext(path, handler);
-        context.getFilters().add(createLoggingFilter(operation));
-    }
-
-    private Filter createLoggingFilter(Operation operation) {
-        return new LoggingFilter(operation);
+        context.getFilters().add(new LoggingFilter(operation));
     }
 
 }

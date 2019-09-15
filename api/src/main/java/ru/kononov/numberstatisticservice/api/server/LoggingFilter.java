@@ -8,9 +8,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import ru.kononov.numberstatisticservice.api.dto.Operation;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PushbackInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.UUID;
@@ -38,12 +38,11 @@ public class LoggingFilter extends Filter {
     }
 
     private void logRequest(HttpExchange exchange, Chain chain) throws IOException {
-        try (var bodyStream = new PushbackInputStream(exchange.getRequestBody(), 1024)) {
+        try (var inputStream = exchange.getRequestBody()) {
             var byteStream = new ByteArrayOutputStream();
-            IOUtils.copy(bodyStream, byteStream);
+            IOUtils.copy(inputStream, byteStream);
             var body = byteStream.toString(StandardCharsets.UTF_8.name());
-            bodyStream.unread(byteStream.toByteArray());
-            exchange.setStreams(bodyStream, exchange.getResponseBody());
+            exchange.setStreams(new ByteArrayInputStream(byteStream.toByteArray()), exchange.getResponseBody());
             if (nonNull(body) && body.length() > 0) {
                 logIn(exchange, body);
             } else {

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import ru.kononov.numberstatisticservice.api.dto.Operation;
 
+import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class LoggingFilter extends Filter {
     private final Operation operation;
     private static final Logger logger = LogManager.getLogger(LoggingFilter.class);
 
+    @Inject
     LoggingFilter(Operation operation) {
         this.operation = operation;
     }

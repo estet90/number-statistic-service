@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import ru.kononov.numberstatisticservice.api.builder.FaultBuilder;
 import ru.kononov.numberstatisticservice.storageapi.logic.NumberStorage;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 
 import static java.util.Optional.ofNullable;
@@ -21,9 +22,10 @@ public class MaxNumberHandler implements HttpHandler {
     private final NumberStorage numberStorage;
     private final FaultBuilder faultBuilder;
 
-    public MaxNumberHandler(NumberStorage numberStorage) {
+    @Inject
+    public MaxNumberHandler(NumberStorage numberStorage, FaultBuilder faultBuilder) {
         this.numberStorage = numberStorage;
-        this.faultBuilder = new FaultBuilder();
+        this.faultBuilder = faultBuilder;
     }
 
     @Override

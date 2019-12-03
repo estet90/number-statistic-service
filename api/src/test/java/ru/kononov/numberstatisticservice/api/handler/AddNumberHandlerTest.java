@@ -3,6 +3,7 @@ package ru.kononov.numberstatisticservice.api.handler;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.Test;
+import ru.kononov.numberstatisticservice.api.builder.FaultBuilder;
 import ru.kononov.numberstatisticservice.inmemorystorage.logic.ImMemoryNumberStorage;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.*;
 
 class AddNumberHandlerTest {
 
-    private final AddNumberHandler handler = new AddNumberHandler(new ImMemoryNumberStorage());
+    private final AddNumberHandler handler = new AddNumberHandler(new ImMemoryNumberStorage(), new FaultBuilder());
 
     @Test
     void handle() throws IOException {
@@ -89,7 +90,7 @@ class AddNumberHandlerTest {
     void handleServerError() throws IOException {
         var storage = mock(ImMemoryNumberStorage.class);
         doThrow(RuntimeException.class).when(storage).add(any());
-        var handler = new AddNumberHandler(storage);
+        var handler = new AddNumberHandler(storage, new FaultBuilder());
         var exchange = mock(HttpExchange.class);
         when(exchange.getRequestMethod()).thenReturn("POST");
         when(exchange.getRequestBody()).thenReturn(new ByteArrayInputStream("1".getBytes()));

@@ -10,8 +10,9 @@ import ru.kononov.numberstatisticservice.api.handler.AverageNumberHandler;
 import ru.kononov.numberstatisticservice.api.handler.MaxNumberHandler;
 import ru.kononov.numberstatisticservice.api.handler.MinNumberHandler;
 import ru.kononov.numberstatisticservice.api.util.PropertyResolver;
-import ru.kononov.numberstatisticservice.storageapi.logic.NumberStorage;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.util.concurrent.Executors;
 
 import static ru.kononov.numberstatisticservice.api.dto.Operation.*;
 
+@Singleton
 public class Server {
 
     private static final Logger logger = LogManager.getLogger(Server.class);
@@ -30,12 +32,17 @@ public class Server {
     private final MinNumberHandler minNumberHandler;
     private final PropertyResolver propertyResolver;
 
-    public Server(NumberStorage numberStorage, String propertyFileName) {
-        this.addNumberHandler = new AddNumberHandler(numberStorage);
-        this.averageNumberHandler = new AverageNumberHandler(numberStorage);
-        this.maxNumberHandler = new MaxNumberHandler(numberStorage);
-        this.minNumberHandler = new MinNumberHandler(numberStorage);
-        this.propertyResolver = new PropertyResolver(propertyFileName);
+    @Inject
+    public Server(AddNumberHandler addNumberHandler,
+                  AverageNumberHandler averageNumberHandler,
+                  MaxNumberHandler maxNumberHandler,
+                  MinNumberHandler minNumberHandler,
+                  PropertyResolver propertyResolver) {
+        this.addNumberHandler = addNumberHandler;
+        this.averageNumberHandler = averageNumberHandler;
+        this.maxNumberHandler = maxNumberHandler;
+        this.minNumberHandler = minNumberHandler;
+        this.propertyResolver = propertyResolver;
     }
 
     public void start() throws IOException {

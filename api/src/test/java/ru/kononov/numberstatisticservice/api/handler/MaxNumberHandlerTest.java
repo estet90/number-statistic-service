@@ -3,6 +3,7 @@ package ru.kononov.numberstatisticservice.api.handler;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.Test;
+import ru.kononov.numberstatisticservice.api.builder.FaultBuilder;
 import ru.kononov.numberstatisticservice.inmemorystorage.logic.ImMemoryNumberStorage;
 
 import java.io.ByteArrayOutputStream;
@@ -20,7 +21,7 @@ class MaxNumberHandlerTest {
     void handle() throws IOException {
         var storage = mock(ImMemoryNumberStorage.class);
         when(storage.max()).thenReturn(BigDecimal.ONE);
-        var handler = new MaxNumberHandler(storage);
+        var handler = new MaxNumberHandler(storage, new FaultBuilder());
         var exchange = mock(HttpExchange.class);
         mockExchange(exchange, "GET");
 
@@ -33,7 +34,7 @@ class MaxNumberHandlerTest {
     void handleReturnNull() throws IOException {
         var storage = mock(ImMemoryNumberStorage.class);
         when(storage.max()).thenReturn(null);
-        var handler = new MaxNumberHandler(storage);
+        var handler = new MaxNumberHandler(storage, new FaultBuilder());
         var exchange = mock(HttpExchange.class);
         mockExchange(exchange, "GET");
 
@@ -44,7 +45,7 @@ class MaxNumberHandlerTest {
 
     @Test
     void handleUnsupportedMethod() throws IOException {
-        var handler = new MaxNumberHandler(new ImMemoryNumberStorage());
+        var handler = new MaxNumberHandler(new ImMemoryNumberStorage(), new FaultBuilder());
         var exchange = mock(HttpExchange.class);
         mockExchange(exchange, "POST");
 
@@ -57,7 +58,7 @@ class MaxNumberHandlerTest {
     void handleServerError() throws IOException {
         var storage = mock(ImMemoryNumberStorage.class);
         when(storage.max()).thenThrow(RuntimeException.class);
-        var handler = new MaxNumberHandler(storage);
+        var handler = new MaxNumberHandler(storage, new FaultBuilder());
         var exchange = mock(HttpExchange.class);
         mockExchange(exchange, "GET");
 
